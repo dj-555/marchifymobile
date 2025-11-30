@@ -46,6 +46,7 @@ class BoutiquesViewModel(
                     is Resource.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = true)
                     }
+
                 }
             }
         }

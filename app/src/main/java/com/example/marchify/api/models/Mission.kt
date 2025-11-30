@@ -7,7 +7,7 @@ import com.google.gson.annotations.SerializedName
  * This is essentially a BonDeLivraison with additional computed fields
  */
 data class Mission(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val bonDeLivraisonId: String,
     val commandeId: String,

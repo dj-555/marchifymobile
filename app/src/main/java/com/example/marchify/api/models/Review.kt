@@ -3,7 +3,7 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class Review(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val type: ReviewType,
     val rating: Int,  // 1-5 stars

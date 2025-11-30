@@ -2,8 +2,16 @@ package com.example.marchify.api.models
 
 import com.google.gson.annotations.SerializedName
 
+data class CommandesResponse(
+    val commandes: List<Commande>
+)
+
+data class CommandeResponse(
+    val commande: Commande
+
+)
 data class Commande(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val status: CmdStatus = CmdStatus.PENDING,
     val adresseLivraison: Adresse,

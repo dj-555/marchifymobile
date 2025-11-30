@@ -3,7 +3,7 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class Notification(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val type: NotificationType,
     val priority: NotificationPriority = NotificationPriority.MEDIUM,

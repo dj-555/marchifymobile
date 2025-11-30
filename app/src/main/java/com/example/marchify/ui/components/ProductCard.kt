@@ -1,5 +1,6 @@
 package com.example.marchify.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -23,12 +24,12 @@ import com.example.marchify.api.models.Produit
 import com.example.marchify.ui.theme.*
 
 /**
- * Product card component (matching web design)
+ * Product card component with safe click handling
  */
 @Composable
 fun ProductCard(
     product: Produit,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,  // pass productId explicitly for validation
     onAddToCart: () -> Unit,
     modifier: Modifier = Modifier,
     showBoutique: Boolean = true
@@ -36,7 +37,16 @@ fun ProductCard(
     Card(
         modifier = modifier
             .width(180.dp)
-            .clickable(onClick = onClick),
+            .clickable {
+                if (product.id.isNotEmpty()) {
+                    Log.d("ProductCard", "Product clicked with ID: ${product.id}")
+                    onClick(product.id)
+                } else {
+                    Log.e("ProductCard", "Error: Product ID is empty!")
+                    // Additional error handling if needed
+                }
+
+            },
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),
@@ -169,19 +179,25 @@ fun ProductCard(
 }
 
 /**
- * Compact product card for lists
+ * Compact product card for lists with safe click handling
  */
 @Composable
 fun ProductCardCompact(
     product: Produit,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,  // pass productId explicitly for validation
     onAddToCart: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable {
+                if (product.id.isNotEmpty()) {
+                    onClick(product.id)
+                } else {
+                    // Log or handle invalid product id
+                }
+            },
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),

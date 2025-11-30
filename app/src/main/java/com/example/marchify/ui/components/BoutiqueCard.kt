@@ -1,5 +1,6 @@
 package com.example.marchify.ui.components
 
+import android.util.Log
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -24,13 +25,20 @@ import com.example.marchify.ui.theme.*
 @Composable
 fun BoutiqueCard(
     boutique: Boutique,
-    onClick: () -> Unit,
+    onClick: (String) -> Unit,
     modifier: Modifier = Modifier
 ) {
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .clickable(onClick = onClick),
+            .clickable {
+                if (boutique.id.isNotEmpty()) {
+                    Log.d("BoutiqueCard", "Boutique clicked with ID: ${boutique.id}")
+                    onClick(boutique.id)
+                } else {
+                    Log.e("BoutiqueCard", "Error: Boutique ID is empty!")
+                }
+            },
         colors = CardDefaults.cardColors(
             containerColor = CardBackground
         ),

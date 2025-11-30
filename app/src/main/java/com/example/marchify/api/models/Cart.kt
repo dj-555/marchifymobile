@@ -3,7 +3,7 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class Cart(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val clientId: String,
     val produits: List<CartItem> = emptyList(),

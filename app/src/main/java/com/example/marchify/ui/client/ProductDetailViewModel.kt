@@ -1,5 +1,6 @@
 package com.example.marchify.ui.client
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marchify.api.models.Produit
@@ -24,25 +25,31 @@ class ProductDetailViewModel(
     private val _uiState = MutableStateFlow(ProductDetailUiState())
     val uiState: StateFlow<ProductDetailUiState> = _uiState.asStateFlow()
 
+
     fun loadProduct(productId: String) {
+        Log.d("ProductDetailVM", "loadProduct called with productId: $productId")
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
             productRepository.getProductById(productId).collect { result ->
                 when (result) {
                     is Resource.Success -> {
+                        Log.d("ProductDetailVM", "Product loaded successfully: ${result.data?.nom}")
                         _uiState.value = _uiState.value.copy(
                             product = result.data,
                             isLoading = false
                         )
                     }
                     is Resource.Error -> {
+                        Log.e("ProductDetailVM", "Error loading product: ${result.message}")
                         _uiState.value = _uiState.value.copy(
                             errorMessage = result.message ?: "Erreur de chargement",
                             isLoading = false
                         )
                     }
-                    is Resource.Loading -> {}
+                    is Resource.Loading -> {
+                        Log.d("ProductDetailVM", "Loading product...")
+                    }
                 }
             }
         }

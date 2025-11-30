@@ -3,7 +3,7 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class BonDeLivraison(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val dateCreation: String,  // ISO date string
     val commandeId: String,

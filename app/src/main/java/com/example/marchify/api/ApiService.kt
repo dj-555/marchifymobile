@@ -125,17 +125,26 @@ interface ApiService {
 
     // ==================== COMMANDE ROUTES ====================
 
+    @GET("commandes/commandesList/{clientId}")
+    suspend fun getCommandesByAcheteur(
+        @Path("clientId") clientId: String
+    ): Response<CommandesResponse>
+
     @GET("commandes/vendeur/{vendeurId}")
-    suspend fun getCommandesVendeur(@Path("vendeurId") vendeurId: String): Response<List<Commande>>
+    suspend fun getCommandesVendeur(
+        @Path("vendeurId") vendeurId: String
+    ): Response<CommandesResponse>
 
     @GET("commandes/boutique/{boutiqueId}")
-    suspend fun getCommandesBoutique(@Path("boutiqueId") boutiqueId: String): Response<List<Commande>>
-
-    @GET("commandes/commandesList/{clientId}")
-    suspend fun getCommandesByAcheteur(@Path("clientId") clientId: String): Response<List<Commande>>
+    suspend fun getCommandesBoutique(
+        @Path("boutiqueId") boutiqueId: String
+    ): Response<CommandesResponse>
 
     @GET("commandes/{commandeId}")
-    suspend fun getDetailCommande(@Path("commandeId") commandeId: String): Response<Commande>
+    suspend fun getDetailCommande(
+        @Path("commandeId") commandeId: String
+    ): Response<CommandeResponse>
+
 
     @PATCH("commandes/accepter/{commandeId}")
     suspend fun accepterCommande(@Path("commandeId") commandeId: String): Response<Commande>

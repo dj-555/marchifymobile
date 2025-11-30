@@ -22,9 +22,10 @@ class OrderRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getDetailCommande(orderId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.commande))
             } else {
                 emit(Resource.Error("Commande not found"))
             }
@@ -41,9 +42,10 @@ class OrderRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getCommandesVendeur(vendeurId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.commandes))
             } else {
                 emit(Resource.Error("Failed to load orders"))
             }
@@ -60,9 +62,10 @@ class OrderRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getCommandesBoutique(boutiqueId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.commandes))
             } else {
                 emit(Resource.Error("Failed to load orders"))
             }
@@ -79,9 +82,10 @@ class OrderRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getCommandesByAcheteur(clientId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.commandes))
             } else {
                 emit(Resource.Error("Failed to load orders"))
             }
@@ -89,6 +93,7 @@ class OrderRepository(private val prefsManager: PrefsManager) {
             emit(Resource.Error("Error: ${e.localizedMessage}"))
         }
     }
+
     /**
      * Get current user's orders (uses PrefsManager to get clientId)
      */
@@ -104,9 +109,10 @@ class OrderRepository(private val prefsManager: PrefsManager) {
             }
 
             val response = apiService.getCommandesByAcheteur(clientId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.commandes))
             } else {
                 emit(Resource.Error("Failed to load orders"))
             }

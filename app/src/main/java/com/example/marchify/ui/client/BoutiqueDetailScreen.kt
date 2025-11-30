@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Boutique Detail Screen
@@ -25,15 +27,20 @@ fun BoutiqueDetailScreen(
     boutiqueId: String,
     onProductClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: ProductsViewModel = viewModel()
+    viewModel: ProductsViewModel = viewModel(
+        factory = ProductsViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
-    LaunchedEffect(boutiqueId) {
+
+    // Only trigger once per boutiqueId
+    LaunchedEffect( boutiqueId) {
         viewModel.loadProductsByBoutique(boutiqueId)
         viewModel.loadBoutiqueDetails(boutiqueId)
     }
-
     Scaffold(
         topBar = {
             MarchifyTopBar(

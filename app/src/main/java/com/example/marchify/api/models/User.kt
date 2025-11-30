@@ -30,14 +30,14 @@ data class Localisation(
 
 // For vendeur-specific data
 data class Vendeur(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val userId: String
 )
 
 // For livreur-specific data
 data class Livreur(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val userId: String,
     val localisation: Localisation? = null

@@ -3,7 +3,7 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class Produit(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val nom: String,
     val prix: Double,
