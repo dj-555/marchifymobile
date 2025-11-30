@@ -11,24 +11,14 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
-/**
- * ViewModel for Login Screen
- * Handles login logic, validation, and state management
- */
 class LoginViewModel(
     private val authRepository: AuthRepository,
     private val prefsManager: PrefsManager
 ) : ViewModel() {
 
-    // ==================== UI STATE ====================
     private val _uiState = MutableStateFlow(LoginUiState())
     val uiState: StateFlow<LoginUiState> = _uiState.asStateFlow()
 
-    // ==================== FUNCTIONS ====================
-
-    /**
-     * Update email field
-     */
     fun onEmailChange(email: String) {
         _uiState.value = _uiState.value.copy(
             email = email,
@@ -36,9 +26,6 @@ class LoginViewModel(
         )
     }
 
-    /**
-     * Update password field
-     */
     fun onPasswordChange(password: String) {
         _uiState.value = _uiState.value.copy(
             password = password,
@@ -46,18 +33,12 @@ class LoginViewModel(
         )
     }
 
-    /**
-     * Toggle password visibility
-     */
     fun togglePasswordVisibility() {
         _uiState.value = _uiState.value.copy(
             isPasswordVisible = !_uiState.value.isPasswordVisible
         )
     }
 
-    /**
-     * Validate form fields
-     */
     private fun validateForm(): Boolean {
         val emailError = ValidationUtils.getEmailError(_uiState.value.email)
         val passwordError = ValidationUtils.getPasswordError(_uiState.value.password)
@@ -70,14 +51,8 @@ class LoginViewModel(
         return emailError == null && passwordError == null
     }
 
-    /**
-     * Perform login
-     */
     fun login() {
-        // Validate form
-        if (!validateForm()) {
-            return
-        }
+        if (!validateForm()) return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
@@ -88,35 +63,45 @@ class LoginViewModel(
             ).collect { result ->
                 when (result) {
                     is Resource.Success -> {
-                        result.data?.let { loginResponse ->
+                        val loginResponse = result.data
+                        if (loginResponse != null) {
+                            val user = loginResponse.user
+
                             // Save token
                             prefsManager.saveAuthToken(loginResponse.token)
 
                             // Save user data
                             prefsManager.saveUserData(
-                                userId = loginResponse.user.id,
-                                role = loginResponse.user.role.name,
-                                name = "${loginResponse.user.prenom} ${loginResponse.user.nom}",
-                                email = loginResponse.user.email,
-                                telephone = loginResponse.user.telephone,
-                                adresse = loginResponse.user.adresse,
-                                vendeurId = loginResponse.user.vendeurId,
-                                livreurId = loginResponse.user.livreurId
+                                id = user.id,
+                                role = user.role.name,
+                                name = "${user.prenom} ${user.nom}",
+                                email = user.email,
+                                telephone = user.telephone,
+                                adresse = user.adresse,
+                                vendeurId = user.vendeurId,
+                                livreurId = user.livreurId
                             )
 
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 isLoginSuccessful = true,
-                                userRole = loginResponse.user.role.name
+                                userRole = user.role.name
+                            )
+                        } else {
+                            _uiState.value = _uiState.value.copy(
+                                isLoading = false,
+                                errorMessage = "Réponse de connexion invalide"
                             )
                         }
                     }
+
                     is Resource.Error -> {
                         _uiState.value = _uiState.value.copy(
                             isLoading = false,
                             errorMessage = result.message ?: "Erreur de connexion"
                         )
                     }
+
                     is Resource.Loading -> {
                         _uiState.value = _uiState.value.copy(isLoading = true)
                     }
@@ -125,17 +110,11 @@ class LoginViewModel(
         }
     }
 
-    /**
-     * Clear error message
-     */
     fun clearError() {
         _uiState.value = _uiState.value.copy(errorMessage = null)
     }
 }
 
-/**
- * UI State for Login Screen
- */
 data class LoginUiState(
     val email: String = "",
     val password: String = "",

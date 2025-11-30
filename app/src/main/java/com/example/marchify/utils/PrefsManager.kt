@@ -2,9 +2,12 @@ package com.example.marchify.utils
 
 import android.content.Context
 import android.content.SharedPreferences
+import com.example.marchify.api.models.Adresse
+import com.google.gson.Gson
 
 class PrefsManager(context: Context) {
 
+    private val gson = Gson()
     private val prefs: SharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE)
 
     companion object {
@@ -27,22 +30,25 @@ class PrefsManager(context: Context) {
     fun getAuthToken(): String? = prefs.getString(KEY_AUTH_TOKEN, null)
 
     fun saveUserData(
-        userId: String,
+        id: String,
         role: String,
         name: String,
         email: String,
         telephone: String? = null,
-        adresse: String? = null,
+        adresse: Adresse? = null,
         vendeurId: String? = null,
         livreurId: String? = null
     ) {
         prefs.edit().apply {
-            putString(KEY_USER_ID, userId)
+            putString(KEY_USER_ID, id)
             putString(KEY_USER_ROLE, role)
             putString(KEY_USER_NAME, name)
             putString(KEY_USER_EMAIL, email)
             telephone?.let { putString(KEY_USER_TELEPHONE, it) }
-            adresse?.let { putString(KEY_USER_ADRESSE, it) }
+            adresse?.let {
+                val json = gson.toJson(it)
+                putString(KEY_USER_ADRESSE, json)
+            }
             vendeurId?.let { putString(KEY_VENDEUR_ID, it) }
             livreurId?.let { putString(KEY_LIVREUR_ID, it) }
             apply()
@@ -54,7 +60,16 @@ class PrefsManager(context: Context) {
     fun getUserName(): String? = prefs.getString(KEY_USER_NAME, null)
     fun getUserEmail(): String? = prefs.getString(KEY_USER_EMAIL, null)
     fun getUserTelephone(): String? = prefs.getString(KEY_USER_TELEPHONE, null)
-    fun getUserAdresse(): String? = prefs.getString(KEY_USER_ADRESSE, null)
+
+    fun getUserAdresse(): Adresse? {
+        val json = prefs.getString(KEY_USER_ADRESSE, null)
+        return if (json != null) {
+            gson.fromJson(json, Adresse::class.java)
+        } else {
+            null
+        }
+    }
+
     fun getVendeurId(): String? = prefs.getString(KEY_VENDEUR_ID, null)
     fun getLivreurId(): String? = prefs.getString(KEY_LIVREUR_ID, null)
 

@@ -9,12 +9,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.api.models.Adresse
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Checkout Screen
@@ -25,7 +27,11 @@ import com.example.marchify.ui.theme.*
 fun CheckoutScreen(
     onOrderSuccess: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: CartViewModel = viewModel()
+    viewModel: CartViewModel = viewModel(
+        factory = CartViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

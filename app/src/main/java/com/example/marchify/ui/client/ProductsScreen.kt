@@ -7,10 +7,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.Spacing
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Products Grid Screen (Alternative layout)
@@ -21,7 +23,11 @@ fun ProductsScreen(
     boutiqueId: String,
     onProductClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: ProductsViewModel = viewModel()
+    viewModel: ProductsViewModel = viewModel(
+        factory = ProductsViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

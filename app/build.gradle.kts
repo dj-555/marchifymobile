@@ -80,6 +80,9 @@ dependencies {
     // ==================== NAVIGATION ====================
     implementation("androidx.navigation:navigation-compose:2.7.7")
 
+    // ==================== COIL IMAGE LOADING ✅ ====================
+    implementation("io.coil-kt:coil-compose:2.7.0")  // ✅ ADDED!
+
     // ==================== LIFECYCLE ====================
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.7.0")
@@ -110,4 +113,8 @@ dependencies {
 
     // ==================== SPLASH SCREEN ====================
     implementation("androidx.core:core-splashscreen:1.0.1")
+
+    // ==================== MATERIAL ICONS (FIXES ICON ERRORS) ====================
+    implementation("androidx.compose.material:material-icons-core:1.6.8")
+    implementation("androidx.compose.material:material-icons-extended:1.6.8")
 }

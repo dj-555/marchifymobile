@@ -8,10 +8,12 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.Spacing
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Boutiques List Screen
@@ -22,7 +24,12 @@ import com.example.marchify.ui.theme.Spacing
 fun BoutiquesScreen(
     onBoutiqueClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: BoutiquesViewModel = viewModel()
+    viewModel: BoutiquesViewModel = viewModel(
+        factory = BoutiquesViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
+
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

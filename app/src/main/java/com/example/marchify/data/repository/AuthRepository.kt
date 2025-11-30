@@ -1,5 +1,6 @@
 package com.example.marchify.data.repository
 
+import android.util.Log
 import com.example.marchify.api.RetrofitClient
 import com.example.marchify.api.models.*
 import com.example.marchify.utils.PrefsManager
@@ -11,32 +12,58 @@ class AuthRepository(private val prefsManager: PrefsManager) {
 
     private val apiService = RetrofitClient.getApiService(prefsManager)
 
-    /**
-     * Login user
-     */
-    fun login(email: String, password: String): Flow<Resource<LoginResponse>> = flow {
+    fun login(email: String?, password: String?): Flow<Resource<LoginResponse>> = flow {
         emit(Resource.Loading())
+
+        // Validate inputs upfront
+        if (email.isNullOrBlank() || password.isNullOrBlank()) {
+            emit(Resource.Error("Email and password must not be empty"))
+            return@flow
+        }
 
         try {
             val response = apiService.login(LoginRequest(email, password))
 
             if (response.isSuccessful && response.body() != null) {
                 val loginResponse = response.body()!!
+
                 val user = loginResponse.user
 
-                // Save ALL user data to PrefsManager
-                prefsManager.saveAuthToken(loginResponse.token)
+                Log.d("LoginDebug", "Full user: $user")
+                Log.d("LoginDebug", "user.id: ${user.id}")
+                Log.d("LoginDebug", "user.role: ${user.role}")
+                Log.d("LoginDebug", "user.email: ${user.email}")
+
+                val userId: String? = user.id
+                val roleName: String? = user.role.name
+                val emailAddr: String? = user.email
+                val prenom = user.prenom ?: ""
+                val nom = user.nom ?: ""
+                Log.d("LoginDebug", "userId: $userId")
+                Log.d("LoginDebug", "roleName: $roleName")
+                Log.d("LoginDebug", "emailAddr: $emailAddr")
+
+
+                if (userId.isNullOrBlank() || roleName.isNullOrBlank() || emailAddr.isNullOrBlank()) {
+                    emit(Resource.Error("Invalid user data: missing critical fields"))
+                    return@flow
+                }
+
+
+                val adresse = user.adresse  // Adresse object expected
+
                 prefsManager.saveUserData(
-                    userId = user.id,
-                    role = user.role.name,
-                    name = "${user.prenom} ${user.nom}",
-                    email = user.email,
-                    telephone = user.telephone,
-                    adresse = user.adresse,
-                    vendeurId = user.vendeurId,
-                    livreurId = user.livreurId
+                    id = userId,
+                    role = roleName,
+                    name = "$prenom $nom".trim(),
+                    email = emailAddr,
+                    telephone = user.telephone ?: "",
+                    adresse = adresse,
+                    vendeurId = user.vendeurId ?: "",
+                    livreurId = user.livreurId ?: ""
                 )
 
+                prefsManager.saveAuthToken(loginResponse.token)
                 emit(Resource.Success(loginResponse))
             } else {
                 emit(Resource.Error(response.errorBody()?.string() ?: "Login failed"))
@@ -46,9 +73,7 @@ class AuthRepository(private val prefsManager: PrefsManager) {
         }
     }
 
-    /**
-     * Register new user
-     */
+
     fun register(
         nom: String,
         prenom: String,
@@ -56,7 +81,7 @@ class AuthRepository(private val prefsManager: PrefsManager) {
         password: String,
         role: UserRole,
         telephone: String,
-        adresse: String // Now STRING
+        adresse: String
     ): Flow<Resource<User>> = flow {
         emit(Resource.Loading())
 
@@ -74,9 +99,6 @@ class AuthRepository(private val prefsManager: PrefsManager) {
         }
     }
 
-    /**
-     * Get current user profile from PrefsManager
-     */
     fun getProfile(): Flow<Resource<User>> = flow {
         emit(Resource.Loading())
 
@@ -86,30 +108,16 @@ class AuthRepository(private val prefsManager: PrefsManager) {
             val userRole = prefsManager.getUserRole()
             val userName = prefsManager.getUserName()
             val telephone = prefsManager.getUserTelephone()
-            val adresse = prefsManager.getUserAdresse()
+            val adresse = prefsManager.getUserAdresse() ?: Adresse("", "Tunis", "", "Tunisie")
 
-            if (userId == null || userEmail == null || userRole == null) {
+            if (userId.isNullOrBlank() || userEmail.isNullOrBlank() || userRole.isNullOrBlank()) {
                 emit(Resource.Error("No user data found. Please login again."))
                 return@flow
             }
 
-            // Parse name
             val nameParts = userName?.split(" ", limit = 2) ?: listOf("", "")
             val prenom = nameParts.getOrNull(0) ?: ""
             val nom = nameParts.getOrNull(1) ?: ""
-
-            // Parse adresse string into Adresse object
-            val adresseObj = if (adresse != null) {
-                // Simple parsing - you might want to improve this
-                Adresse(
-                    rue = adresse,
-                    ville = "",
-                    codePostal = "",
-                    pays = "Tunisie"
-                )
-            } else {
-                Adresse("", "", "", "Tunisie")
-            }
 
             val user = User(
                 id = userId,
@@ -118,7 +126,7 @@ class AuthRepository(private val prefsManager: PrefsManager) {
                 email = userEmail,
                 role = UserRole.valueOf(userRole),
                 telephone = telephone ?: "",
-                adresse = adresseObj
+                adresse = adresse
             )
 
             emit(Resource.Success(user))
@@ -127,9 +135,6 @@ class AuthRepository(private val prefsManager: PrefsManager) {
         }
     }
 
-    /**
-     * Logout
-     */
     fun logout(): Flow<Resource<Boolean>> = flow {
         emit(Resource.Loading())
 

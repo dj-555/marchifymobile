@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Profile Screen
@@ -24,7 +26,11 @@ import com.example.marchify.ui.theme.*
 fun ProfileScreen(
     onLogout: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: ProfileViewModel = viewModel()
+    viewModel: ProfileViewModel = viewModel(
+        factory = ProfileViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     var showLogoutDialog by remember { mutableStateOf(false) }
@@ -125,9 +131,9 @@ fun ProfileScreen(
                         ProfileItem(
                             icon = Icons.Default.LocationOn,
                             label = "Adresse",
-                            value = "${uiState.user!!.adresse.rue}\n" +
-                                    "${uiState.user!!.adresse.ville}, ${uiState.user!!.adresse.codePostal}\n" +
-                                    uiState.user!!.adresse.pays
+                            value = "${uiState.user!!.adresse}\n" +
+                                    "${uiState.user!!.adresse}, ${uiState.user!!.adresse}\n" +
+                                    uiState.user!!.adresse
                         )
                     }
 

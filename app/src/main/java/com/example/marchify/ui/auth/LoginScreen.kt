@@ -189,13 +189,17 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(24.dp))
 
                     // Error message
-                    if (uiState.errorMessage != null) {
-                        ErrorMessage(
-                            message = uiState.errorMessage!!,
-                            onDismiss = viewModel::clearError
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
+                    // Error message
+                    uiState.errorMessage?.let { msg ->
+                        if (msg.isNotBlank()) {
+                            ErrorMessage(
+                                message = msg,
+                                onDismiss = viewModel::clearError
+                            )
+                            Spacer(modifier = Modifier.height(16.dp))
+                        }
                     }
+
 
                     // Login button
                     Button(

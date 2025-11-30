@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -19,6 +20,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Product Detail Screen
@@ -31,7 +33,11 @@ fun ProductDetailScreen(
     onAddToCart: () -> Unit,
     onCartClick: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: ProductDetailViewModel = viewModel()
+    viewModel: ProductDetailViewModel = viewModel(
+        factory = ProductDetailViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

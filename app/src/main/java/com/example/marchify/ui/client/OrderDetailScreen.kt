@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -18,6 +19,7 @@ import coil.compose.AsyncImage
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
 import com.example.marchify.utils.DateUtils
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Order Detail Screen
@@ -28,7 +30,11 @@ import com.example.marchify.utils.DateUtils
 fun OrderDetailScreen(
     orderId: String,
     onBackClick: () -> Unit,
-    viewModel: OrdersViewModel = viewModel()
+    viewModel: OrdersViewModel = viewModel(
+        factory = OrdersViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
 

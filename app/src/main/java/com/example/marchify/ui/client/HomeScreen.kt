@@ -9,11 +9,15 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.Spacing
+import com.example.marchify.utils.PrefsManager
+import androidx.compose.ui.platform.LocalContext
+
 
 /**
  * Home Screen - Client dashboard
@@ -29,7 +33,12 @@ fun HomeScreen(
     onNotificationsClick: () -> Unit,
     onProductClick: (String) -> Unit,
     onBoutiqueClick: (String) -> Unit,
-    viewModel: HomeViewModel = viewModel()
+    viewModel: HomeViewModel = viewModel(
+        factory = HomeViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
+
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

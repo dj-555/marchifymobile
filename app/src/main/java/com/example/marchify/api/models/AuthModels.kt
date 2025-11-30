@@ -27,14 +27,15 @@ data class LoginResponse(
 
 // Separate model for login response (matches backend exactly)
 data class UserLoginResponse(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val nom: String,
     val prenom: String,
     val email: String,
     val role: UserRole,
     val telephone: String,
-    val adresse: String, // Backend returns STRING
+    val adresse: Adresse, // Backend returns STRING
     val vendeurId: String? = null,
     val livreurId: String? = null
 )
+

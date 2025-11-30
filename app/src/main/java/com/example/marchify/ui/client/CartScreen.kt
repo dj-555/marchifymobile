@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -20,6 +21,7 @@ import coil.compose.AsyncImage
 import com.example.marchify.api.models.CartItem
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Shopping Cart Screen
@@ -31,7 +33,11 @@ fun CartScreen(
     onCheckoutClick: () -> Unit,
     onProductClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: CartViewModel = viewModel()
+    viewModel: CartViewModel = viewModel(
+        factory = CartViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

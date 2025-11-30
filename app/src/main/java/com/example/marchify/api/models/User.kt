@@ -3,14 +3,14 @@ package com.example.marchify.api.models
 import com.google.gson.annotations.SerializedName
 
 data class User(
-    @SerializedName("_id")
+    @SerializedName("id")
     val id: String,
     val nom: String,
     val prenom: String,
     val email: String,
     val role: UserRole,
     val telephone: String,
-    val adresse: String,
+    val adresse: Adresse,
     val localisation: Localisation? = null,
     val vendeur: Vendeur? = null,
     val livreur: Livreur? = null
