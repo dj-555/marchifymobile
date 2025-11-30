@@ -29,7 +29,7 @@ class AnalyticsViewModel(
     }
 
     private fun loadAnalytics() {
-        val vendeurId = prefsManager.getUserId() ?: return
+        val vendeurId = prefsManager.getVendeurId() ?: return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
@@ -73,7 +73,7 @@ class AnalyticsViewModel(
     }
 
     fun loadStatsForMonth(month: Int, year: Int) {
-        val vendeurId = prefsManager.getUserId() ?: return
+        val vendeurId = prefsManager.getVendeurId() ?: return
 
         viewModelScope.launch {
             orderRepository.getStatsForMonthAndYear(vendeurId, month, year).collect { result ->

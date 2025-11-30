@@ -24,7 +24,7 @@ class MapViewModel(
     val uiState: StateFlow<MapUiState> = _uiState.asStateFlow()
 
     fun loadDeliveryRoute(deliveryId: String) {
-        val livreurId = prefsManager.getUserId() ?: return
+        val livreurId = prefsManager.getLivreurId() ?: return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)

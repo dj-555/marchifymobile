@@ -10,6 +10,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -19,6 +20,7 @@ import com.example.marchify.api.models.toLabel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
 import com.example.marchify.utils.DateUtils
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Deliveries Screen
@@ -29,7 +31,11 @@ import com.example.marchify.utils.DateUtils
 fun DeliveriesScreen(
     onDeliveryClick: (String) -> Unit,
     onBackClick: () -> Unit,
-    viewModel: DeliveriesViewModel = viewModel()
+    viewModel: DeliveriesViewModel = viewModel(
+        factory = DeliveriesViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }

@@ -9,12 +9,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.api.models.Mission
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Missions Screen
@@ -27,16 +29,46 @@ fun MissionsScreen(
     onDeliveriesClick: () -> Unit,
     onProfileClick: () -> Unit,
     onNotificationsClick: () -> Unit,
-    viewModel: MissionsViewModel = viewModel()
+    viewModel: MissionsViewModel = viewModel(
+        factory = MissionsViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(
         topBar = {
-            MarchifyLogoTopBar(
-                onCartClick = {}, // Not needed for livreur
-                onNotificationClick = onNotificationsClick,
-                notificationCount = 0
+            TopAppBar(
+                title = {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "MarchiFy",
+                            style = MaterialTheme.typography.headlineSmall,
+                            fontWeight = FontWeight.Bold,
+                            color = PrimaryGreen
+                        )
+                    }
+                },
+                actions = {
+                    IconButton(onClick = onNotificationsClick) {
+                        Icon(
+                            imageVector = Icons.Default.Notifications,
+                            contentDescription = "Notifications"
+                        )
+                    }
+                    IconButton(onClick = onProfileClick) {
+                        Icon(
+                            imageVector = Icons.Default.Person,
+                            contentDescription = "Profile"
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.topAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.surface
+                )
             )
         }
     ) { paddingValues ->
@@ -153,7 +185,7 @@ private fun MissionCard(
                     shape = MaterialTheme.shapes.small
                 ) {
                     Text(
-                        text = "${mission.totalCommande} TND",
+                        text = "${mission.commande.totalCommande} TND",
                         modifier = Modifier.padding(horizontal = 12.dp, vertical = 6.dp),
                         style = MaterialTheme.typography.labelLarge,
                         fontWeight = FontWeight.Bold,
@@ -181,16 +213,18 @@ private fun MissionCard(
                         style = MaterialTheme.typography.labelMedium,
                         color = TextSecondary
                     )
-                    Text(
-                        text = mission.boutique.nom,
-                        style = MaterialTheme.typography.bodyLarge,
-                        fontWeight = FontWeight.SemiBold
-                    )
-                    Text(
-                        text = mission.boutique.adresse,
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
+                    mission.commande.boutique?.let { boutique ->
+                        Text(
+                            text = boutique.nom,
+                            style = MaterialTheme.typography.bodyLarge,
+                            fontWeight = FontWeight.SemiBold
+                        )
+                        Text(
+                            text = boutique.adresse,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = TextSecondary
+                        )
+                    }
                 }
             }
 
@@ -214,7 +248,7 @@ private fun MissionCard(
                         color = TextSecondary
                     )
                     Text(
-                        text = "${mission.adresseLivraison.rue}, ${mission.adresseLivraison.ville}",
+                        text = "${mission.commande.adresseLivraison.rue}, ${mission.commande.adresseLivraison.ville}",
                         style = MaterialTheme.typography.bodyLarge,
                         fontWeight = FontWeight.SemiBold
                     )
@@ -227,58 +261,26 @@ private fun MissionCard(
 
             Spacer(modifier = Modifier.height(Spacing.medium))
 
-            // Distance, time and client
+            // Client info
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.End
             ) {
-                mission.distance?.let { distance ->
+                mission.commande.client?.let { client ->
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
-                            imageVector = Icons.Default.Navigation,
+                            imageVector = Icons.Default.Person,
                             contentDescription = null,
                             modifier = Modifier.size(16.dp),
                             tint = TextSecondary
                         )
                         Spacer(modifier = Modifier.width(4.dp))
                         Text(
-                            text = "%.1f km".format(distance),
+                            text = "${client.prenom} ${client.nom}",
                             style = MaterialTheme.typography.bodySmall,
                             color = TextSecondary
                         )
                     }
-                }
-
-                mission.estimatedTime?.let { time ->
-                    Row(verticalAlignment = Alignment.CenterVertically) {
-                        Icon(
-                            imageVector = Icons.Default.Schedule,
-                            contentDescription = null,
-                            modifier = Modifier.size(16.dp),
-                            tint = TextSecondary
-                        )
-                        Spacer(modifier = Modifier.width(4.dp))
-                        Text(
-                            text = "$time min",
-                            style = MaterialTheme.typography.bodySmall,
-                            color = TextSecondary
-                        )
-                    }
-                }
-
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    Icon(
-                        imageVector = Icons.Default.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(16.dp),
-                        tint = TextSecondary
-                    )
-                    Spacer(modifier = Modifier.width(4.dp))
-                    Text(
-                        text = "${mission.client.prenom} ${mission.client.nom}",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = TextSecondary
-                    )
                 }
             }
         }

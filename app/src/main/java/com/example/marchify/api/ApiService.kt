@@ -181,97 +181,68 @@ interface ApiService {
         @Path("year") year: Int
     ): Response<MonthlyStats>
 
+// ==================== BON DE LIVRAISON ROUTES ====================
 
-    // ==================== BON DE LIVRAISON ROUTES (Updated) ====================
-
-    @GET("bons/getAllBons")
+    @GET("bonDeLivraison/getAllBons")
     suspend fun getAllBonsDeLivraison(): Response<List<BonDeLivraison>>
 
-    @GET("bons/unassigned")
+    @GET("bonDeLivraison/unassigned")
     suspend fun getUnassignedBons(): Response<List<BonDeLivraison>>
 
-    @GET("bons/livreur/{livreurId}")
-    suspend fun getBonsDeLivraisonByLivreur(@Path("livreurId") livreurId: String): Response<List<BonDeLivraison>>
+    @GET("bonsDeLivraison/livreur/{livreurId}")
+    suspend fun getBonsDeLivraisonByLivreur(
+        @Path("livreurId") livreurId: String
+    ): Response<BonsLivraisonResponse>  // ← Changed from List<BonDeLivraison>
 
-    @GET("bons/commande/{commandeId}")
-    suspend fun getBonByCommandeId(@Path("commandeId") commandeId: String): Response<BonDeLivraison>
 
-    @GET("bons/{bonId}")
+    @GET("bonDeLivraison/commande/{commandeId}")
+    suspend fun getBonByCommandeId(
+        @Path("commandeId") commandeId: String
+    ): Response<BonDeLivraison>
+
+    @GET("bonDeLivraison/{bonId}")
     suspend fun getBonById(@Path("bonId") bonId: String): Response<BonDeLivraison>
 
-    @PATCH("bons/{bonId}/assign-livreur")
+    @PATCH("bonDeLivraison/{bonId}/assign-livreur")
     suspend fun assignLivreurToBon(
         @Path("bonId") bonId: String,
         @Body request: AssignLivreurRequest
     ): Response<BonDeLivraison>
 
-    /**
-     * Mark order as picked up by livreur
-     * Changes status: pending_pickup -> picked_up
-     */
-    @PATCH("bons/{bonId}/pickup")
+    @PATCH("bonDeLivraison/{bonId}/pickup")
     suspend fun pickupCommande(@Path("bonId") bonId: String): Response<BonDeLivraison>
 
-    /**
-     * Mark order as delivered
-     * Changes status: in_transit -> delivered
-     */
-    @PATCH("bons/{bonId}/deliver")
+    @PATCH("bonDeLivraison/{bonId}/deliver")
     suspend fun deliverCommande(@Path("bonId") bonId: String): Response<BonDeLivraison>
 
-    /**
-     * Mark delivery as failed with reason
-     * Changes status: * -> failed
-     */
-    @PATCH("bons/{bonId}/fail")
+    @PATCH("bonDeLivraison/{bonId}/fail")
     suspend fun failDelivery(
         @Path("bonId") bonId: String,
         @Body request: FailDeliveryRequest
     ): Response<BonDeLivraison>
 
-    /**
-     * Update delivery status manually (admin/vendeur)
-     * @param request contains new DeliveryStatus
-     */
-    @PATCH("bons/{bonId}/status")
+    @PATCH("bonDeLivraison/{bonId}/status")
     suspend fun updateBonDeliverStatus(
         @Path("bonId") bonId: String,
         @Body request: UpdateDeliveryStatusRequest
     ): Response<BonDeLivraison>
 
+// ==================== LIVREUR/MISSION ROUTES ====================
 
-    // ==================== LIVREUR/MISSION ROUTES ====================
-
-    /**
-     * Get available missions (unassigned bons)
-     */
     @GET("livreur/missions")
-    suspend fun getMissionsDisponibles(): Response<List<Mission>>
+    suspend fun getMissionsDisponibles(): Response<MissionsResponse>
 
-    /**
-     * Get mission details by ID
-     */
     @GET("livreur/missions/{id}")
-    suspend fun getMissionById(@Path("id") id: String): Response<Mission>
+    suspend fun getMissionById(@Path("id") id: String): Response<MissionResponse>
 
-    /**
-     * Accept a mission (assigns livreur to bon)
-     * @param livreurId - ID of the livreur accepting
-     * @param bonId - ID of the bon de livraison
-     */
     @PATCH("livreur/missions/accepter/{livreurId}/{bonId}")
     suspend fun accepterMission(
         @Path("livreurId") livreurId: String,
         @Path("bonId") bonId: String
     ): Response<AcceptMissionResponse>
 
-    /**
-     * Refuse a mission
-     * @param commandeId - ID of the commande to refuse
-     */
     @PATCH("livreur/missions/refuser/{commandeId}")
     suspend fun refuserMission(@Path("commandeId") commandeId: String): Response<Unit>
-
 
     // ==================== NOTIFICATION ROUTES ====================
 

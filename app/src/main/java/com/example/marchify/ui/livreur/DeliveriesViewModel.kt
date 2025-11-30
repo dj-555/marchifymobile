@@ -29,7 +29,7 @@ class DeliveriesViewModel(
     }
 
     fun loadMyDeliveries() {
-        val livreurId = prefsManager.getUserId() ?: return
+        val livreurId = prefsManager.getLivreurId() ?: return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)

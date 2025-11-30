@@ -29,22 +29,32 @@ class MissionsViewModel(
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)
 
-            missionRepository.getAvailableMissions().collect { result ->
-                when (result) {
-                    is Resource.Success -> {
-                        _uiState.value = _uiState.value.copy(
-                            missions = result.data ?: emptyList(),
-                            isLoading = false
-                        )
+            try {
+                missionRepository.getAvailableMissions().collect { result ->
+                    when (result) {
+                        is Resource.Success -> {
+                            _uiState.value = _uiState.value.copy(
+                                missions = result.data ?: emptyList(),
+                                isLoading = false,
+                                errorMessage = null
+                            )
+                        }
+                        is Resource.Error -> {
+                            _uiState.value = _uiState.value.copy(
+                                errorMessage = result.message ?: "Erreur de chargement",
+                                isLoading = false
+                            )
+                        }
+                        is Resource.Loading -> {
+                            _uiState.value = _uiState.value.copy(isLoading = true)
+                        }
                     }
-                    is Resource.Error -> {
-                        _uiState.value = _uiState.value.copy(
-                            errorMessage = result.message ?: "Erreur de chargement",
-                            isLoading = false
-                        )
-                    }
-                    is Resource.Loading -> {}
                 }
+            } catch (e: Exception) {
+                _uiState.value = _uiState.value.copy(
+                    errorMessage = "Erreur: ${e.localizedMessage ?: "Erreur inconnue"}",
+                    isLoading = false
+                )
             }
         }
     }

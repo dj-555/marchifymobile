@@ -65,27 +65,11 @@ class LoginViewModel(
                     is Resource.Success -> {
                         val loginResponse = result.data
                         if (loginResponse != null) {
-                            val user = loginResponse.user
-
-                            // Save token
-                            prefsManager.saveAuthToken(loginResponse.token)
-
-                            // Save user data
-                            prefsManager.saveUserData(
-                                id = user.id,
-                                role = user.role.name,
-                                name = "${user.prenom} ${user.nom}",
-                                email = user.email,
-                                telephone = user.telephone,
-                                adresse = user.adresse,
-                                vendeurId = user.vendeurId,
-                                livreurId = user.livreurId
-                            )
-
+                            // All user data including vendeur/livreur IDs are already saved in repository
                             _uiState.value = _uiState.value.copy(
                                 isLoading = false,
                                 isLoginSuccessful = true,
-                                userRole = user.role.name
+                                userRole = loginResponse.user.role.name
                             )
                         } else {
                             _uiState.value = _uiState.value.copy(

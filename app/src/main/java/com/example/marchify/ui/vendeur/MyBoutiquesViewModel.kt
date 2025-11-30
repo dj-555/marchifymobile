@@ -27,7 +27,7 @@ class MyBoutiquesViewModel(
     }
 
     fun loadMyBoutiques() {
-        val vendeurId = prefsManager.getUserId() ?: return
+        val vendeurId = prefsManager.getVendeurId() ?: return
 
         viewModelScope.launch {
             _uiState.value = _uiState.value.copy(isLoading = true, errorMessage = null)

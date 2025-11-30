@@ -22,9 +22,10 @@ class MissionRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getMissionsDisponibles()
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.missions)) // ← unwrap missions
             } else {
                 emit(Resource.Error("Failed to load missions"))
             }
@@ -41,9 +42,10 @@ class MissionRepository(private val prefsManager: PrefsManager) {
 
         try {
             val response = apiService.getMissionById(id)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.mission)) // ← unwrap mission
             } else {
                 emit(Resource.Error("Mission not found"))
             }
@@ -93,14 +95,18 @@ class MissionRepository(private val prefsManager: PrefsManager) {
     /**
      * Get livreur's assigned bons de livraison
      */
+    /**
+     * Get livreur's assigned bons de livraison
+     */
     fun getLivreurBons(livreurId: String): Flow<Resource<List<BonDeLivraison>>> = flow {
         emit(Resource.Loading())
 
         try {
             val response = apiService.getBonsDeLivraisonByLivreur(livreurId)
+            val body = response.body()
 
-            if (response.isSuccessful && response.body() != null) {
-                emit(Resource.Success(response.body()!!))
+            if (response.isSuccessful && body != null) {
+                emit(Resource.Success(body.bons))  // ← Unwrap the bons array
             } else {
                 emit(Resource.Error("Failed to load deliveries"))
             }
@@ -108,6 +114,7 @@ class MissionRepository(private val prefsManager: PrefsManager) {
             emit(Resource.Error("Error: ${e.localizedMessage}"))
         }
     }
+
 
     /**
      * Pickup order

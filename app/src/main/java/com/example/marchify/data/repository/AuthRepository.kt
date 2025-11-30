@@ -26,44 +26,80 @@ class AuthRepository(private val prefsManager: PrefsManager) {
 
             if (response.isSuccessful && response.body() != null) {
                 val loginResponse = response.body()!!
-
                 val user = loginResponse.user
 
-                Log.d("LoginDebug", "Full user: $user")
-                Log.d("LoginDebug", "user.id: ${user.id}")
-                Log.d("LoginDebug", "user.role: ${user.role}")
-                Log.d("LoginDebug", "user.email: ${user.email}")
+                Log.d("AuthRepo", "=== Login Success ===")
+                Log.d("AuthRepo", "User ID: ${user.id}")
+                Log.d("AuthRepo", "User Role: ${user.role.name}")
+                Log.d("AuthRepo", "Email: ${user.email}")
 
-                val userId: String? = user.id
-                val roleName: String? = user.role.name
-                val emailAddr: String? = user.email
+                val userId: String = user.id
+                val roleName: String = user.role.name
+                val emailAddr: String = user.email
                 val prenom = user.prenom ?: ""
                 val nom = user.nom ?: ""
-                Log.d("LoginDebug", "userId: $userId")
-                Log.d("LoginDebug", "roleName: $roleName")
-                Log.d("LoginDebug", "emailAddr: $emailAddr")
 
-
-                if (userId.isNullOrBlank() || roleName.isNullOrBlank() || emailAddr.isNullOrBlank()) {
+                if (userId.isBlank() || roleName.isBlank() || emailAddr.isBlank()) {
                     emit(Resource.Error("Invalid user data: missing critical fields"))
                     return@flow
                 }
 
+                // Save token first
+                prefsManager.saveAuthToken(loginResponse.token)
 
-                val adresse = user.adresse  // Adresse object expected
+                // Fetch and save vendeur/livreur ID based on role
+                var vendeurId: String? = null
+                var livreurId: String? = null
 
+                when (user.role) {
+                    UserRole.VENDEUR -> {
+                        Log.d("AuthRepo", "Fetching Vendeur ID for user: $userId")
+                        try {
+                            val vendeurResponse = apiService.getVendeurByUserId(userId)
+                            if (vendeurResponse.isSuccessful && vendeurResponse.body() != null) {
+                                vendeurId = vendeurResponse.body()!!.id
+                                Log.d("AuthRepo", "Vendeur ID fetched: $vendeurId")
+                            } else {
+                                Log.e("AuthRepo", "Failed to fetch vendeur ID")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("AuthRepo", "Error fetching vendeur ID: ${e.message}")
+                        }
+                    }
+                    UserRole.LIVREUR -> {
+                        Log.d("AuthRepo", "Fetching Livreur ID for user: $userId")
+                        try {
+                            val livreurResponse = apiService.getLivreurByUserId(userId)
+                            if (livreurResponse.isSuccessful && livreurResponse.body() != null) {
+                                livreurId = livreurResponse.body()!!.id
+                                Log.d("AuthRepo", "Livreur ID fetched: $livreurId")
+                            } else {
+                                Log.e("AuthRepo", "Failed to fetch livreur ID")
+                            }
+                        } catch (e: Exception) {
+                            Log.e("AuthRepo", "Error fetching livreur ID: ${e.message}")
+                        }
+                    }
+                    else -> {
+                        Log.d("AuthRepo", "Role is CLIENT or other, no additional ID needed")
+                    }
+                }
+
+                // Save all user data
                 prefsManager.saveUserData(
                     id = userId,
                     role = roleName,
                     name = "$prenom $nom".trim(),
                     email = emailAddr,
                     telephone = user.telephone ?: "",
-                    adresse = adresse,
-                    vendeurId = user.vendeurId ?: "",
-                    livreurId = user.livreurId ?: ""
+                    adresse = user.adresse,
+                    vendeurId = vendeurId ?: "",
+                    livreurId = livreurId ?: ""
                 )
 
-                prefsManager.saveAuthToken(loginResponse.token)
+                Log.d("AuthRepo", "User data saved - VendeurID: $vendeurId, LivreurID: $livreurId")
+                Log.d("AuthRepo", "===================")
+
                 emit(Resource.Success(loginResponse))
             } else {
                 emit(Resource.Error(response.errorBody()?.string() ?: "Login failed"))
@@ -72,7 +108,6 @@ class AuthRepository(private val prefsManager: PrefsManager) {
             emit(Resource.Error("Network error: ${e.localizedMessage}"))
         }
     }
-
 
     fun register(
         nom: String,

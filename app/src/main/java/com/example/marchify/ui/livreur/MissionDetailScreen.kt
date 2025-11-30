@@ -8,11 +8,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Mission Detail Screen
@@ -24,7 +26,11 @@ fun MissionDetailScreen(
     missionId: String,
     onAcceptMission: () -> Unit,
     onBackClick: () -> Unit,
-    viewModel: MissionDetailViewModel = viewModel()
+    viewModel: MissionDetailViewModel = viewModel(
+        factory = MissionDetailViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )
 ) {
     val uiState by viewModel.uiState.collectAsState()
 
@@ -100,7 +106,7 @@ fun MissionDetailScreen(
                                             color = TextSecondary
                                         )
                                         Text(
-                                            text = "${mission.totalCommande} TND",
+                                            text = "${mission.commande.totalCommande} TND",
                                             style = MaterialTheme.typography.displaySmall,
                                             fontWeight = FontWeight.Bold,
                                             color = PrimaryGreen
@@ -136,25 +142,29 @@ fun MissionDetailScreen(
                                     Spacer(modifier = Modifier.height(Spacing.medium))
 
                                     // Pickup
-                                    RoutePoint(
-                                        icon = Icons.Default.Store,
-                                        iconColor = AccentOrange,
-                                        label = "Point de retrait",
-                                        name = mission.boutique.nom,
-                                        address = "${mission.boutique.adresse}"
-                                    )
+                                    mission.commande.boutique?.let { boutique ->
+                                        RoutePoint(
+                                            icon = Icons.Default.Store,
+                                            iconColor = AccentOrange,
+                                            label = "Point de retrait",
+                                            name = boutique.nom,
+                                            address = boutique.adresse
+                                        )
+                                    }
 
                                     Spacer(modifier = Modifier.height(Spacing.large))
 
                                     // Delivery
-                                    RoutePoint(
-                                        icon = Icons.Default.LocationOn,
-                                        iconColor = Error,
-                                        label = "Point de livraison",
-                                        name = "${mission.client.prenom} ${mission.client.nom}",
-                                        address = "${mission.adresseLivraison.rue}, ${mission.adresseLivraison.ville}",
-                                        phone = mission.client.telephone
-                                    )
+                                    mission.commande.client?.let { client ->
+                                        RoutePoint(
+                                            icon = Icons.Default.LocationOn,
+                                            iconColor = Error,
+                                            label = "Point de livraison",
+                                            name = "${client.prenom} ${client.nom}",
+                                            address = "${mission.commande.adresseLivraison.rue}, ${mission.commande.adresseLivraison.ville}",
+                                            phone = client.telephone
+                                        )
+                                    }
                                 }
                             }
                         }
@@ -182,21 +192,9 @@ fun MissionDetailScreen(
                                         horizontalArrangement = Arrangement.SpaceEvenly
                                     ) {
                                         InfoItem(
-                                            icon = Icons.Default.Navigation,
-                                            label = "Distance",
-                                            value = mission.distance?.let { "%.1f km".format(it) } ?: "~ km"
-                                        )
-
-                                        InfoItem(
-                                            icon = Icons.Default.Schedule,
-                                            label = "Temps estimé",
-                                            value = mission.estimatedTime?.let { "$it min" } ?: "~ min"
-                                        )
-
-                                        InfoItem(
                                             icon = Icons.Default.Payment,
                                             label = "Montant",
-                                            value = "${mission.totalCommande} TND"
+                                            value = "${mission.commande.totalCommande} TND"
                                         )
                                     }
                                 }
@@ -224,7 +222,7 @@ fun MissionDetailScreen(
                             }
 
                             Button(
-                                onClick = { viewModel.acceptMission(mission.bonDeLivraisonId) },
+                                onClick = { viewModel.acceptMission(mission.id) },
                                 modifier = Modifier.weight(1f),
                                 enabled = !uiState.isAccepting,
                                 colors = ButtonDefaults.buttonColors(

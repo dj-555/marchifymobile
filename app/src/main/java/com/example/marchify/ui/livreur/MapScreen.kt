@@ -11,11 +11,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 
 /**
  * Map Screen
@@ -27,8 +29,11 @@ import com.example.marchify.ui.theme.*
 fun MapScreen(
     deliveryId: String,
     onBackClick: () -> Unit,
-    viewModel: MapViewModel = viewModel()
-) {
+    viewModel: MapViewModel = viewModel(
+        factory = MapViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )) {
     val uiState by viewModel.uiState.collectAsState()
 
     LaunchedEffect(deliveryId) {

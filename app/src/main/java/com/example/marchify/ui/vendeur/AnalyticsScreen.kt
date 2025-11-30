@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marchify.ui.components.*
 import com.example.marchify.ui.theme.*
+import com.example.marchify.utils.PrefsManager
 import java.util.Calendar
 
 /**
@@ -24,8 +26,11 @@ import java.util.Calendar
 @Composable
 fun AnalyticsScreen(
     onBackClick: () -> Unit,
-    viewModel: AnalyticsViewModel = viewModel()
-) {
+    viewModel: AnalyticsViewModel = viewModel(
+        factory = AnalyticsViewModelFactory(
+            PrefsManager(LocalContext.current)
+        )
+    )) {
     val uiState by viewModel.uiState.collectAsState()
 
     Scaffold(

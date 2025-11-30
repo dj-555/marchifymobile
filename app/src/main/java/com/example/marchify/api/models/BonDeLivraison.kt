@@ -13,6 +13,11 @@ data class BonDeLivraison(
     val livreur: Livreur? = null
 )
 
+// Response wrapper for getBonsDeLivraisonByLivreur
+data class BonsLivraisonResponse(
+    val bons: List<BonDeLivraison>
+)
+
 // Request models
 data class AssignLivreurRequest(
     val livreurId: String
